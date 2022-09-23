@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux"; 
 import { createProject } from "../../actions/projectActions";
+import classnames from "classnames";
 
 
 class AddProject extends Component {
@@ -12,11 +13,18 @@ class AddProject extends Component {
             name: "",
             day: "",
             done: "",
-            value: ""
+            value: "",
+            errors: {}
         };
 
         this.onChange = this.onChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.errors) {
+            this.setState({ errors: nextProps.errors});
+        }
     }
 
     onChange(e) {
@@ -36,12 +44,12 @@ class AddProject extends Component {
 
     }
 
-
-
   render() {
+    const {errors} = this.state 
+
     return (
       <div>
-      
+
       <div className="project">
       <div className="container">
           <div className="row">
@@ -51,21 +59,31 @@ class AddProject extends Component {
                   <form onSubmit={this.onSubmit}>
                       <div className="form-group">
                           <input type="text" 
-                          className="form-control form-control-lg " 
+                          className={classnames("form-control form-control-lg ", {
+                            "is-invalid": errors.name
+                          }) }
                           placeholder="Habit name" 
                           name="name"
                           value={this.state.name}
                           onChange={this.onChange}
                           />
+                          {errors.name && (
+                            <div className='invalid-feedback'>{errors.name}</div>
+                          ) } 
                       </div>
                       <div className="form-group">
                           <input type="text" 
-                          className="form-control form-control-lg" 
+                          className={classnames("form-control form-control-lg", {
+                            "is-invalid": errors.value
+                          } )}
                           placeholder="Value"
                           name="value"
                           value={this.state.value}
                           onChange={this.onChange}
                           />
+                          {errors.value && (
+                            <div className='invalid-feedback'>{errors.value}</div>
+                          )} 
                       </div>
                       
                       <div className="form-group">
@@ -100,10 +118,15 @@ class AddProject extends Component {
 }
 
 AddProject.propTypes = {
-    createProject: PropTypes.func.isRequired
-}
+    createProject: PropTypes.func.isRequired,
+    errors: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+    errors: state.errors
+});
 
 export default connect(
-    null,
+    mapStateToProps,
     { createProject} 
     ) (AddProject);
